@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
-#include <vector>
 using namespace std;
+
+const int MAX_BOOKS = 100;  // Maximum number of books the library can hold
 
 // Book class definition
 class Book {
@@ -57,26 +58,45 @@ public:
     bool isBookBorrowed() const {
         return this->isBorrowed;
     }
+
+    // Function to check if the book is empty (used for removing books)
+    bool isEmpty() const {
+        return this->title.empty();
+    }
 };
 
 // Library class definition
 class Library {
     // Private data members
-    vector<Book> books;
+    Book books[MAX_BOOKS];  // Array of Book objects
+    int bookCount;  // Number of books currently in the library
 
 public:
+    // Constructor to initialize the library
+    Library() : bookCount(0) {}
+
     // Function to add a book to the library
     void addBook(const Book& book) {
-        books.push_back(book);
-        cout << "Book added: " << book.getTitle() << "\n";
+        if (bookCount < MAX_BOOKS) {
+            books[bookCount] = book;
+            bookCount++;
+            cout << "Book added: " << book.getTitle() << "\n";
+        } else {
+            cout << "Library is full, cannot add more books.\n";
+        }
     }
 
     // Function to remove a book from the library by title
     void removeBook(const string& title) {
-        for (auto it = books.begin(); it != books.end(); ++it) {
-            if (it->getTitle() == title) {
-                books.erase(it);
+        for (int i = 0; i < bookCount; i++) {
+            if (books[i].getTitle() == title) {
+                books[i] = Book();  // Remove the book by setting it to an empty book
                 cout << "Book removed: " << title << "\n";
+                // Shift all the books to fill the gap
+                for (int j = i; j < bookCount - 1; j++) {
+                    books[j] = books[j + 1];
+                }
+                bookCount--;
                 return;
             }
         }
@@ -86,16 +106,16 @@ public:
     // Function to display all books in the library
     void displayBooks() const {
         cout << "Library Collection:\n";
-        for (const auto& book : books) {
-            book.displayDetails();
+        for (int i = 0; i < bookCount; i++) {
+            books[i].displayDetails();
         }
     }
 
     // Function to borrow a book by title
     void borrowBook(const string& title) {
-        for (auto& book : books) {
-            if (book.getTitle() == title) {
-                book.borrowBook();
+        for (int i = 0; i < bookCount; i++) {
+            if (books[i].getTitle() == title) {
+                books[i].borrowBook();
                 return;
             }
         }
@@ -104,9 +124,9 @@ public:
 
     // Function to return a book by title
     void returnBook(const string& title) {
-        for (auto& book : books) {
-            if (book.getTitle() == title) {
-                book.returnBook();
+        for (int i = 0; i < bookCount; i++) {
+            if (books[i].getTitle() == title) {
+                books[i].returnBook();
                 return;
             }
         }
