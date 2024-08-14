@@ -14,33 +14,33 @@ public:
     // Constructor
     Book() : title(""), author(""), isBorrowed(false) {}
 
-    Book(string t, string a) : title(t), author(a), isBorrowed(false) {}
+    Book(string title, string author) : title(title), author(author), isBorrowed(false) {}
 
     // Function to borrow the book
     void borrowBook() {
-        if (!isBorrowed) {
-            isBorrowed = true;
-            cout << title << " has been borrowed.\n";
+        if (!this->isBorrowed) {
+            this->isBorrowed = true;
+            cout << this->title << " has been borrowed.\n";
         } else {
-            cout << title << " is already borrowed.\n";
+            cout << this->title << " is already borrowed.\n";
         }
     }
 
     // Function to return the book
     void returnBook() {
-        if (isBorrowed) {
-            isBorrowed = false;
-            cout << title << " has been returned.\n";
+        if (this->isBorrowed) {
+            this->isBorrowed = false;
+            cout << this->title << " has been returned.\n";
         } else {
-            cout << title << " was not borrowed.\n";
+            cout << this->title << " was not borrowed.\n";
         }
     }
 
     // Function to display book details
     void displayDetails() const {
-        if (!title.empty()) {
-            cout << "Title: " << title << ", Author: " << author;
-            if (isBorrowed) {
+        if (!this->title.empty()) {
+            cout << "Title: " << this->title << ", Author: " << this->author;
+            if (this->isBorrowed) {
                 cout << " (Borrowed)\n";
             } else {
                 cout << " (Available)\n";
@@ -50,12 +50,12 @@ public:
 
     // Getter function to access the title
     string getTitle() const {
-        return title;
+        return this->title;
     }
 
     // Function to check if the book is borrowed
     bool isBookBorrowed() const {
-        return isBorrowed;
+        return this->isBorrowed;
     }
 };
 
