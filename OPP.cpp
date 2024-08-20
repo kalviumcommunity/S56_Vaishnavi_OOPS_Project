@@ -2,11 +2,8 @@
 #include <string>
 using namespace std;
 
-const int MAX_BOOKS = 100;  // Maximum number of books the library can hold
-
 // Book class definition
 class Book {
-    // Private data members
     string title;
     string author;
     bool isBorrowed;
@@ -67,18 +64,31 @@ public:
 
 // Library class definition
 class Library {
-    // Private data members
-    Book books[MAX_BOOKS];  // Array of Book objects
+    Book** books;  // Array of pointers to Book objects
     int bookCount;  // Number of books currently in the library
+    int capacity;  // Capacity of the library
 
 public:
     // Constructor to initialize the library
-    Library() : bookCount(0) {}
+    Library(int maxBooks) : bookCount(0), capacity(maxBooks) {
+        books = new Book*[capacity];  // Allocate array of pointers
+        for (int i = 0; i < capacity; i++) {
+            books[i] = nullptr;  // Initialize all pointers to nullptr
+        }
+    }
+
+    // Destructor to free allocated memory
+    ~Library() {
+        for (int i = 0; i < bookCount; i++) {
+            delete books[i];  // Delete each dynamically allocated Book object
+        }
+        delete[] books;  // Delete the array of pointers
+    }
 
     // Function to add a book to the library
     void addBook(const Book& book) {
-        if (bookCount < MAX_BOOKS) {
-            books[bookCount] = book;
+        if (bookCount < capacity) {
+            books[bookCount] = new Book(book);  // Dynamically allocate a new Book object
             bookCount++;
             cout << "Book added: " << book.getTitle() << "\n";
         } else {
@@ -89,13 +99,14 @@ public:
     // Function to remove a book from the library by title
     void removeBook(const string& title) {
         for (int i = 0; i < bookCount; i++) {
-            if (books[i].getTitle() == title) {
-                books[i] = Book();  // Remove the book by setting it to an empty book
+            if (books[i]->getTitle() == title) {
+                delete books[i];  // Delete the Book object
                 cout << "Book removed: " << title << "\n";
                 // Shift all the books to fill the gap
                 for (int j = i; j < bookCount - 1; j++) {
                     books[j] = books[j + 1];
                 }
+                books[bookCount - 1] = nullptr;
                 bookCount--;
                 return;
             }
@@ -107,15 +118,15 @@ public:
     void displayBooks() const {
         cout << "Library Collection:\n";
         for (int i = 0; i < bookCount; i++) {
-            books[i].displayDetails();
+            books[i]->displayDetails();
         }
     }
 
     // Function to borrow a book by title
     void borrowBook(const string& title) {
         for (int i = 0; i < bookCount; i++) {
-            if (books[i].getTitle() == title) {
-                books[i].borrowBook();
+            if (books[i]->getTitle() == title) {
+                books[i]->borrowBook();
                 return;
             }
         }
@@ -125,8 +136,8 @@ public:
     // Function to return a book by title
     void returnBook(const string& title) {
         for (int i = 0; i < bookCount; i++) {
-            if (books[i].getTitle() == title) {
-                books[i].returnBook();
+            if (books[i]->getTitle() == title) {
+                books[i]->returnBook();
                 return;
             }
         }
@@ -136,8 +147,8 @@ public:
 
 // Main function to demonstrate the functionality
 int main() {
-    // Create Library object
-    Library myLibrary;
+    // Create Library object with a maximum capacity of 100 books
+    Library myLibrary(100);
 
     // Create Book objects
     Book book1("The Great Gatsby", "F. Scott Fitzgerald");
