@@ -68,6 +68,8 @@ class Library {
     int bookCount;  // Number of books currently in the library
     int capacity;  // Capacity of the library
 
+    static int totalBooksAdded;  // Static variable to track the total number of books added
+
 public:
     // Constructor to initialize the library
     Library(int maxBooks) : bookCount(0), capacity(maxBooks) {
@@ -90,6 +92,7 @@ public:
         if (bookCount < capacity) {
             books[bookCount] = new Book(book);  // Dynamically allocate a new Book object
             bookCount++;
+            totalBooksAdded++;  // Increment the static variable
             cout << "Book added: " << book.getTitle() << "\n";
         } else {
             cout << "Library is full, cannot add more books.\n";
@@ -122,6 +125,11 @@ public:
         }
     }
 
+    // Function to display the total number of books ever added to the library
+    static void displayTotalBooksAdded() {
+        cout << "Total number of books ever added: " << totalBooksAdded << "\n";
+    }
+
     // Function to borrow a book by title
     void borrowBook(const string& title) {
         for (int i = 0; i < bookCount; i++) {
@@ -145,6 +153,9 @@ public:
     }
 };
 
+// Initialize the static variable
+int Library::totalBooksAdded = 0;
+
 // Main function to demonstrate the functionality
 int main() {
     // Create Library object with a maximum capacity of 100 books
@@ -161,6 +172,9 @@ int main() {
     // Display all books in the library
     myLibrary.displayBooks();
 
+    // Display the total number of books ever added
+    Library::displayTotalBooksAdded();
+
     // Borrow a book
     myLibrary.borrowBook("1984");
 
@@ -175,6 +189,9 @@ int main() {
 
     // Display all books in the library
     myLibrary.displayBooks();
+
+    // Display the total number of books ever added
+    Library::displayTotalBooksAdded();
 
     return 0;
 }
