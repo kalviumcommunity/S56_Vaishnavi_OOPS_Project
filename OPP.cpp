@@ -92,7 +92,7 @@ public:
         if (bookCount < capacity) {
             books[bookCount] = new Book(book);  // Dynamically allocate a new Book object
             bookCount++;
-            totalBooksAdded++;  // Increment the static variable
+            Library::incrementTotalBooksAdded();  // Increment the static variable
             cout << "Book added: " << book.getTitle() << "\n";
         } else {
             cout << "Library is full, cannot add more books.\n";
@@ -125,11 +125,6 @@ public:
         }
     }
 
-    // Function to display the total number of books ever added to the library
-    static void displayTotalBooksAdded() {
-        cout << "Total number of books ever added: " << totalBooksAdded << "\n";
-    }
-
     // Function to borrow a book by title
     void borrowBook(const string& title) {
         for (int i = 0; i < bookCount; i++) {
@@ -150,6 +145,16 @@ public:
             }
         }
         cout << "Book not found: " << title << "\n";
+    }
+
+    // Static function to increment the total number of books added
+    static void incrementTotalBooksAdded() {
+        totalBooksAdded++;
+    }
+
+    // Static function to display the total number of books ever added to the library
+    static void displayTotalBooksAdded() {
+        cout << "Total number of books ever added: " << totalBooksAdded << "\n";
     }
 };
 
