@@ -2,18 +2,6 @@
 #include <string>
 using namespace std;
 
-// Abstract class to define the library interface
-class LibraryInterface {
-public:
-    // Abstract methods (pure virtual)
-    virtual void addBook(const string & title, const string & author) = 0;
-    virtual void removeBook(const string & title) = 0;
-    virtual void borrowBook(const string & title) = 0;
-    virtual void returnBook(const string & title) = 0;
-    virtual void displayBooks() const = 0;
-    virtual ~LibraryInterface() = default; 
-};
-
 // Book class definition with Encapsulation
 class Book {
 private:
@@ -22,19 +10,49 @@ private:
     bool isBorrowed;
 
 public:
-    // Constructor
-    Book() : title(""), author(""), isBorrowed(false) {}
+    // Default Constructor
+    Book() : title(""), author(""), isBorrowed(false) {
+        cout << "Book object created with default constructor.\n";
+    }
 
-    Book(string title, string author) : title(title), author(author), isBorrowed(false) {}
+    // Parameterized Constructor
+    Book(string title, string author) : title(title), author(author), isBorrowed(false) {
+        cout << "Book object created with title: " << title << ", author: " << author << ".\n";
+    }
+
+    // Copy Constructor
+    Book(const Book& other) : title(other.title), author(other.author), isBorrowed(other.isBorrowed) {
+        cout << "Book object copied.\n";
+    }
+
+    // Destructor
+    ~Book() {
+        cout << "Book object (" << title << ") destroyed.\n";
+    }
 
     // Getter for title
     string getTitle() const {
         return this->title;
     }
 
+    // Setter for title (if required)
+    void setTitle(const string& title) {
+        this->title = title;
+    }
+
     // Getter for author
     string getAuthor() const {
         return this->author;
+    }
+
+    // Setter for author (if required)
+    void setAuthor(const string& author) {
+        this->author = author;
+    }
+
+    // Getter for isBorrowed status
+    bool isBookBorrowed() const {
+        return this->isBorrowed;
     }
 
     // Function to borrow the book
@@ -75,8 +93,8 @@ public:
     }
 };
 
-// Library class definition implementing LibraryInterface
-class Library : public LibraryInterface {
+// Library class definition with Encapsulation
+class Library {
 private:
     Book** books;  // Array of pointers to Book objects
     int bookCount;  // Number of books currently in the library
@@ -91,30 +109,32 @@ public:
         for (int i = 0; i < capacity; i++) {
             books[i] = nullptr;  // Initialize all pointers to nullptr
         }
+        cout << "Library created with capacity of " << capacity << " books.\n";
     }
 
     // Destructor to free allocated memory
-    ~Library() override {
+    ~Library() {
         for (int i = 0; i < bookCount; i++) {
             delete books[i];  // Delete each dynamically allocated Book object
         }
         delete[] books;  // Delete the array of pointers
+        cout << "Library destroyed and memory deallocated.\n";
     }
 
-    // Implementing addBook from LibraryInterface
-    void addBook(const string& title, const string& author) override {
+    // Function to add a book to the library
+    void addBook(const Book& book) {
         if (bookCount < capacity) {
-            books[bookCount] = new Book(title, author);  // Dynamically allocate a new Book object
+            books[bookCount] = new Book(book);  // Dynamically allocate a new Book object
             bookCount++;
             Library::incrementTotalBooksAdded();  // Increment the static variable
-            cout << "Book added: " << title << "\n";
+            cout << "Book added: " << book.getTitle() << "\n";
         } else {
             cout << "Library is full, cannot add more books.\n";
         }
     }
 
-    // Implementing removeBook from LibraryInterface
-    void removeBook(const string& title) override {
+    // Function to remove a book from the library by title
+    void removeBook(const string& title) {
         for (int i = 0; i < bookCount; i++) {
             if (books[i]->getTitle() == title) {
                 delete books[i];  // Delete the Book object
@@ -131,8 +151,16 @@ public:
         cout << "Book not found: " << title << "\n";
     }
 
-    // Implementing borrowBook from LibraryInterface
-    void borrowBook(const string& title) override {
+    // Function to display all books in the library
+    void displayBooks() const {
+        cout << "Library Collection:\n";
+        for (int i = 0; i < bookCount; i++) {
+            books[i]->displayDetails();
+        }
+    }
+
+    // Function to borrow a book by title
+    void borrowBook(const string& title) {
         for (int i = 0; i < bookCount; i++) {
             if (books[i]->getTitle() == title) {
                 books[i]->borrowBook();
@@ -142,8 +170,8 @@ public:
         cout << "Book not found: " << title << "\n";
     }
 
-    // Implementing returnBook from LibraryInterface
-    void returnBook(const string& title) override {
+    // Function to return a book by title
+    void returnBook(const string& title) {
         for (int i = 0; i < bookCount; i++) {
             if (books[i]->getTitle() == title) {
                 books[i]->returnBook();
@@ -151,14 +179,6 @@ public:
             }
         }
         cout << "Book not found: " << title << "\n";
-    }
-
-    // Implementing displayBooks from LibraryInterface
-    void displayBooks() const override {
-        cout << "Library Collection:\n";
-        for (int i = 0; i < bookCount; i++) {
-            books[i]->displayDetails();
-        }
     }
 
     // Static function to increment the total number of books added
@@ -175,19 +195,29 @@ public:
 // Initialize the static variable
 int Library::totalBooksAdded = 0;
 
-// Main function to demonstrate the functionality using abstraction
+// Main function to demonstrate the functionality
 int main() {
     // Create Library object with a maximum capacity of 100 books
     Library myLibrary(100);
 
+    // Create Book objects
+    Book book1("The Great Gatsby", "F. Scott Fitzgerald");
+    Book book2("1984", "George Orwell");
+
     // Add books to the library
-    myLibrary.addBook("The Great Gatsby", "F. Scott Fitzgerald");
-    myLibrary.addBook("1984", "George Orwell");
+    myLibrary.addBook(book1);
+    myLibrary.addBook(book2);
 
     // Display all books in the library
     myLibrary.displayBooks();
 
+    // Display the total number of books ever added
+    Library::displayTotalBooksAdded();
+
     // Borrow a book
+    myLibrary.borrowBook("1984");
+
+    // Try to borrow the same book again
     myLibrary.borrowBook("1984");
 
     // Return the book
