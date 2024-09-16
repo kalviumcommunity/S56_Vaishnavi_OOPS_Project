@@ -2,8 +2,9 @@
 #include <string>
 using namespace std;
 
-// Book class definition
+// Book class definition with Encapsulation
 class Book {
+private:
     string title;
     string author;
     bool isBorrowed;
@@ -13,6 +14,31 @@ public:
     Book() : title(""), author(""), isBorrowed(false) {}
 
     Book(string title, string author) : title(title), author(author), isBorrowed(false) {}
+
+    // Getter for title
+    string getTitle() const {
+        return this->title;
+    }
+
+    // Setter for title (if required)
+    void setTitle(const string& title) {
+        this->title = title;
+    }
+
+    // Getter for author
+    string getAuthor() const {
+        return this->author;
+    }
+
+    // Setter for author (if required)
+    void setAuthor(const string& author) {
+        this->author = author;
+    }
+
+    // Getter for isBorrowed status
+    bool isBookBorrowed() const {
+        return this->isBorrowed;
+    }
 
     // Function to borrow the book
     void borrowBook() {
@@ -46,24 +72,15 @@ public:
         }
     }
 
-    // Getter function to access the title
-    string getTitle() const {
-        return this->title;
-    }
-
-    // Function to check if the book is borrowed
-    bool isBookBorrowed() const {
-        return this->isBorrowed;
-    }
-
-    // Function to check if the book is empty (used for removing books)
+    // Function to check if the book is empty
     bool isEmpty() const {
         return this->title.empty();
     }
 };
 
-// Library class definition
+// Library class definition with Encapsulation
 class Library {
+private:
     Book** books;  // Array of pointers to Book objects
     int bookCount;  // Number of books currently in the library
     int capacity;  // Capacity of the library
