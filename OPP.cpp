@@ -2,9 +2,9 @@
 #include <string>
 using namespace std;
 
-// Book class definition with Encapsulation
+// Base class Book with Encapsulation
 class Book {
-private:
+protected:  // Changed to protected so that derived classes can access these members
     string title;
     string author;
     bool isBorrowed;
@@ -20,13 +20,8 @@ public:
         cout << "Book object created with title: " << title << ", author: " << author << ".\n";
     }
 
-    // Copy Constructor
-    Book(const Book& other) : title(other.title), author(other.author), isBorrowed(other.isBorrowed) {
-        cout << "Book object copied.\n";
-    }
-
     // Destructor
-    ~Book() {
+    virtual ~Book() {
         cout << "Book object (" << title << ") destroyed.\n";
     }
 
@@ -35,28 +30,8 @@ public:
         return this->title;
     }
 
-    // Setter for title (if required)
-    void setTitle(const string& title) {
-        this->title = title;
-    }
-
-    // Getter for author
-    string getAuthor() const {
-        return this->author;
-    }
-
-    // Setter for author (if required)
-    void setAuthor(const string& author) {
-        this->author = author;
-    }
-
-    // Getter for isBorrowed status
-    bool isBookBorrowed() const {
-        return this->isBorrowed;
-    }
-
     // Function to borrow the book
-    void borrowBook() {
+    virtual void borrowBook() {
         if (!this->isBorrowed) {
             this->isBorrowed = true;
             cout << this->title << " has been borrowed.\n";
@@ -66,7 +41,7 @@ public:
     }
 
     // Function to return the book
-    void returnBook() {
+    virtual void returnBook() {
         if (this->isBorrowed) {
             this->isBorrowed = false;
             cout << this->title << " has been returned.\n";
@@ -76,26 +51,63 @@ public:
     }
 
     // Function to display book details
-    void displayDetails() const {
-        if (!this->title.empty()) {
-            cout << "Title: " << this->title << ", Author: " << this->author;
-            if (this->isBorrowed) {
-                cout << " (Borrowed)\n";
-            } else {
-                cout << " (Available)\n";
-            }
+    virtual void displayDetails() const {
+        cout << "Title: " << this->title << ", Author: " << this->author;
+        if (this->isBorrowed) {
+            cout << " (Borrowed)\n";
+        } else {
+            cout << " (Available)\n";
         }
-    }
-
-    // Function to check if the book is empty
-    bool isEmpty() const {
-        return this->title.empty();
     }
 };
 
-// Library class definition with Encapsulation
-class Library {
+// Derived class EBook from base class Book (Single Inheritance)
+class EBook : public Book {
 private:
+    double fileSize;  // Additional property for EBook
+
+public:
+    // Parameterized Constructor
+    EBook(string title, string author, double fileSize) : Book(title, author), fileSize(fileSize) {
+        cout << "EBook object created with file size: " << fileSize << "MB\n";
+    }
+
+    // Overriding the displayDetails function
+    void displayDetails() const override {
+        cout << "E-Book -> Title: " << title << ", Author: " << author << ", File Size: " << fileSize << "MB";
+        if (isBorrowed) {
+            cout << " (Borrowed)\n";
+        } else {
+            cout << " (Available)\n";
+        }
+    }
+};
+
+// Derived class PrintedBook from base class Book (Hierarchical Inheritance)
+class PrintedBook : public Book {
+private:
+    int pageCount;  // Additional property for PrintedBook
+
+public:
+    // Parameterized Constructor
+    PrintedBook(string title, string author, int pageCount) : Book(title, author), pageCount(pageCount) {
+        cout << "PrintedBook object created with " << pageCount << " pages.\n";
+    }
+
+    // Overriding the displayDetails function
+    void displayDetails() const override {
+        cout << "Printed Book -> Title: " << title << ", Author: " << author << ", Pages: " << pageCount;
+        if (isBorrowed) {
+            cout << " (Borrowed)\n";
+        } else {
+            cout << " (Available)\n";
+        }
+    }
+};
+
+// Base class Library with Encapsulation
+class Library {
+protected:
     Book** books;  // Array of pointers to Book objects
     int bookCount;  // Number of books currently in the library
     int capacity;  // Capacity of the library
@@ -113,7 +125,7 @@ public:
     }
 
     // Destructor to free allocated memory
-    ~Library() {
+    virtual ~Library() {
         for (int i = 0; i < bookCount; i++) {
             delete books[i];  // Delete each dynamically allocated Book object
         }
@@ -122,33 +134,15 @@ public:
     }
 
     // Function to add a book to the library
-    void addBook(const Book& book) {
+    virtual void addBook(Book* book) {
         if (bookCount < capacity) {
-            books[bookCount] = new Book(book);  // Dynamically allocate a new Book object
+            books[bookCount] = book;  // Add the Book object
             bookCount++;
             Library::incrementTotalBooksAdded();  // Increment the static variable
-            cout << "Book added: " << book.getTitle() << "\n";
+            cout << "Book added: " << book->getTitle() << "\n";
         } else {
             cout << "Library is full, cannot add more books.\n";
         }
-    }
-
-    // Function to remove a book from the library by title
-    void removeBook(const string& title) {
-        for (int i = 0; i < bookCount; i++) {
-            if (books[i]->getTitle() == title) {
-                delete books[i];  // Delete the Book object
-                cout << "Book removed: " << title << "\n";
-                // Shift all the books to fill the gap
-                for (int j = i; j < bookCount - 1; j++) {
-                    books[j] = books[j + 1];
-                }
-                books[bookCount - 1] = nullptr;
-                bookCount--;
-                return;
-            }
-        }
-        cout << "Book not found: " << title << "\n";
     }
 
     // Function to display all books in the library
@@ -157,28 +151,6 @@ public:
         for (int i = 0; i < bookCount; i++) {
             books[i]->displayDetails();
         }
-    }
-
-    // Function to borrow a book by title
-    void borrowBook(const string& title) {
-        for (int i = 0; i < bookCount; i++) {
-            if (books[i]->getTitle() == title) {
-                books[i]->borrowBook();
-                return;
-            }
-        }
-        cout << "Book not found: " << title << "\n";
-    }
-
-    // Function to return a book by title
-    void returnBook(const string& title) {
-        for (int i = 0; i < bookCount; i++) {
-            if (books[i]->getTitle() == title) {
-                books[i]->returnBook();
-                return;
-            }
-        }
-        cout << "Book not found: " << title << "\n";
     }
 
     // Static function to increment the total number of books added
@@ -192,42 +164,44 @@ public:
     }
 };
 
+// Derived class DigitalLibrary from Library (Single Inheritance)
+class DigitalLibrary : public Library {
+public:
+    // Constructor that calls the base class constructor
+    DigitalLibrary(int maxBooks) : Library(maxBooks) {
+        cout << "Digital Library created.\n";
+    }
+
+    // Destructor
+    ~DigitalLibrary() {
+        cout << "Digital Library destroyed.\n";
+    }
+
+    // Overriding the addBook function for digital libraries (optional)
+    void addBook(Book* book) override {
+        cout << "Adding a digital book to the library.\n";
+        Library::addBook(book);  // Call base class method
+    }
+};
+
 // Initialize the static variable
 int Library::totalBooksAdded = 0;
 
 // Main function to demonstrate the functionality
 int main() {
-    // Create Library object with a maximum capacity of 100 books
-    Library myLibrary(100);
+    // Create DigitalLibrary object with a maximum capacity of 100 books
+    DigitalLibrary myDigitalLibrary(100);
 
-    // Create Book objects
-    Book book1("The Great Gatsby", "F. Scott Fitzgerald");
-    Book book2("1984", "George Orwell");
+    // Create EBook and PrintedBook objects
+    EBook ebook1("Digital Fortress", "Dan Brown", 5.2);
+    PrintedBook pbook1("To Kill a Mockingbird", "Harper Lee", 281);
 
-    // Add books to the library
-    myLibrary.addBook(book1);
-    myLibrary.addBook(book2);
-
-    // Display all books in the library
-    myLibrary.displayBooks();
-
-    // Display the total number of books ever added
-    Library::displayTotalBooksAdded();
-
-    // Borrow a book
-    myLibrary.borrowBook("1984");
-
-    // Try to borrow the same book again
-    myLibrary.borrowBook("1984");
-
-    // Return the book
-    myLibrary.returnBook("1984");
-
-    // Remove a book from the library
-    myLibrary.removeBook("The Great Gatsby");
+    // Add books to the digital library
+    myDigitalLibrary.addBook(&ebook1);
+    myDigitalLibrary.addBook(&pbook1);
 
     // Display all books in the library
-    myLibrary.displayBooks();
+    myDigitalLibrary.displayBooks();
 
     // Display the total number of books ever added
     Library::displayTotalBooksAdded();
