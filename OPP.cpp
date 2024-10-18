@@ -2,9 +2,17 @@
 #include <string>
 using namespace std;
 
+// Abstract Class (Interface for Library)
+class LibraryInterface {
+public:
+    virtual void addBook(class Book* book) = 0;  // Pure virtual function
+    virtual void displayBooks() const = 0;       // Pure virtual function
+    virtual ~LibraryInterface() {}               // Virtual destructor
+};
 
+// Book class (Base class for EBook and PrintedBook)
 class Book {
-protected:  // Changed to protected so that derived classes can access these members
+protected:
     string title;
     string author;
     bool isBorrowed;
@@ -15,12 +23,12 @@ public:
         cout << "Book object created with default constructor.\n";
     }
 
-    // Constructor with title only (Constructor Overloading)
+    // Constructor with title
     Book(string title) : title(title), author("Unknown"), isBorrowed(false) {
         cout << "Book object created with title: " << title << ", author: Unknown.\n";
     }
 
-    // Constructor with title and author (Constructor Overloading)
+    // Constructor with title and author
     Book(string title, string author) : title(title), author(author), isBorrowed(false) {
         cout << "Book object created with title: " << title << ", author: " << author << ".\n";
     }
@@ -35,7 +43,7 @@ public:
         return this->title;
     }
 
-    // Function to borrow the book
+    // Function to borrow the book (Virtual function)
     virtual void borrowBook() {
         if (!this->isBorrowed) {
             this->isBorrowed = true;
@@ -45,7 +53,7 @@ public:
         }
     }
 
-    // Function to return the book
+    // Function to return the book (Virtual function)
     virtual void returnBook() {
         if (this->isBorrowed) {
             this->isBorrowed = false;
@@ -55,7 +63,7 @@ public:
         }
     }
 
-    // Virtual function to display book details (Run-Time Polymorphism - Function Overriding)
+    // Virtual function to display book details
     virtual void displayDetails() const {
         cout << "Title: " << this->title << ", Author: " << this->author;
         if (this->isBorrowed) {
@@ -66,18 +74,17 @@ public:
     }
 };
 
-// Derived class EBook from base class Book (Single Inheritance)
+// Derived class EBook from base class Book
 class EBook : public Book {
 private:
-    double fileSize;  // Additional property for EBook
+    double fileSize;
 
 public:
-    // Parameterized Constructor
     EBook(string title, string author, double fileSize) : Book(title, author), fileSize(fileSize) {
         cout << "EBook object created with file size: " << fileSize << "MB\n";
     }
 
-    // Overriding the displayDetails function (Run-Time Polymorphism - Function Overriding)
+    // Overriding the displayDetails function
     void displayDetails() const override {
         cout << "E-Book -> Title: " << title << ", Author: " << author << ", File Size: " << fileSize << "MB";
         if (isBorrowed) {
@@ -88,18 +95,17 @@ public:
     }
 };
 
-// Derived class PrintedBook from base class Book (Hierarchical Inheritance)
+// Derived class PrintedBook from base class Book
 class PrintedBook : public Book {
 private:
-    int pageCount;  // Additional property for PrintedBook
+    int pageCount;
 
 public:
-    // Parameterized Constructor
     PrintedBook(string title, string author, int pageCount) : Book(title, author), pageCount(pageCount) {
         cout << "PrintedBook object created with " << pageCount << " pages.\n";
     }
 
-    // Overriding the displayDetails function (Run-Time Polymorphism - Function Overriding)
+    // Overriding the displayDetails function
     void displayDetails() const override {
         cout << "Printed Book -> Title: " << title << ", Author: " << author << ", Pages: " << pageCount;
         if (isBorrowed) {
@@ -110,91 +116,62 @@ public:
     }
 };
 
-// Base class Library with Encapsulation
-class Library {
+// Concrete Library class that implements the abstract class (Single Inheritance)
+class DigitalLibrary : public LibraryInterface {
 protected:
-    Book** books;  // Array of pointers to Book objects
-    int bookCount;  // Number of books currently in the library
-    int capacity;  // Capacity of the library
+    Book** books;
+    int bookCount;
+    int capacity;
 
-    static int totalBooksAdded;  // Static variable to track the total number of books added
+    static int totalBooksAdded;
 
 public:
-    // Constructor to initialize the library
-    Library(int maxBooks) : bookCount(0), capacity(maxBooks) {
-        books = new Book*[capacity];  // Allocate array of pointers
+    DigitalLibrary(int maxBooks) : bookCount(0), capacity(maxBooks) {
+        books = new Book*[capacity];
         for (int i = 0; i < capacity; i++) {
-            books[i] = nullptr;  // Initialize all pointers to nullptr
+            books[i] = nullptr;
         }
-        cout << "Library created with capacity of " << capacity << " books.\n";
+        cout << "Digital Library created with capacity of " << capacity << " books.\n";
     }
 
-    // Destructor to free allocated memory
-    virtual ~Library() {
+    ~DigitalLibrary() {
         for (int i = 0; i < bookCount; i++) {
-            delete books[i];  // Delete each dynamically allocated Book object
+            delete books[i];
         }
-        delete[] books;  // Delete the array of pointers
-        cout << "Library destroyed and memory deallocated.\n";
+        delete[] books;
+        cout << "Digital Library destroyed and memory deallocated.\n";
     }
 
-    // Function to add a book to the library
-    virtual void addBook(Book* book) {
+    // Override addBook function to add a book to the library
+    void addBook(Book* book) override {
         if (bookCount < capacity) {
-            books[bookCount] = book;  // Add the Book object
+            books[bookCount] = book;
             bookCount++;
-            Library::incrementTotalBooksAdded();  // Increment the static variable
+            totalBooksAdded++;
             cout << "Book added: " << book->getTitle() << "\n";
         } else {
             cout << "Library is full, cannot add more books.\n";
         }
     }
 
-    // Function to display all books in the library
-    void displayBooks() const {
+    // Override displayBooks function to display all books in the library
+    void displayBooks() const override {
         cout << "Library Collection:\n";
         for (int i = 0; i < bookCount; i++) {
             books[i]->displayDetails();
         }
     }
 
-    // Static function to increment the total number of books added
-    static void incrementTotalBooksAdded() {
-        totalBooksAdded++;
-    }
-
-    // Static function to display the total number of books ever added to the library
     static void displayTotalBooksAdded() {
         cout << "Total number of books ever added: " << totalBooksAdded << "\n";
     }
 };
 
-// Derived class DigitalLibrary from Library (Single Inheritance)
-class DigitalLibrary : public Library {
-public:
-    // Constructor that calls the base class constructor
-    DigitalLibrary(int maxBooks) : Library(maxBooks) {
-        cout << "Digital Library created.\n";
-    }
+// Initialize static variable
+int DigitalLibrary::totalBooksAdded = 0;
 
-    // Destructor
-    ~DigitalLibrary() {
-        cout << "Digital Library destroyed.\n";
-    }
-
-    // Overriding the addBook function for digital libraries (optional)
-    void addBook(Book* book) override {
-        cout << "Adding a digital book to the library.\n";
-        Library::addBook(book);  // Call base class method
-    }
-};
-
-// Initialize the static variable
-int Library::totalBooksAdded = 0;
-
-// Main function to demonstrate the functionality
 int main() {
-    // Create DigitalLibrary object with a maximum capacity of 100 books
+    // Create DigitalLibrary object
     DigitalLibrary myDigitalLibrary(100);
 
     // Create EBook and PrintedBook objects
@@ -209,7 +186,7 @@ int main() {
     myDigitalLibrary.displayBooks();
 
     // Display the total number of books ever added
-    Library::displayTotalBooksAdded();
+    DigitalLibrary::displayTotalBooksAdded();
 
     return 0;
 }
