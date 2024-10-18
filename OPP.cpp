@@ -2,7 +2,7 @@
 #include <string>
 using namespace std;
 
-// Base class Book with Encapsulation
+
 class Book {
 protected:  // Changed to protected so that derived classes can access these members
     string title;
@@ -15,7 +15,12 @@ public:
         cout << "Book object created with default constructor.\n";
     }
 
-    // Parameterized Constructor
+    // Constructor with title only (Constructor Overloading)
+    Book(string title) : title(title), author("Unknown"), isBorrowed(false) {
+        cout << "Book object created with title: " << title << ", author: Unknown.\n";
+    }
+
+    // Constructor with title and author (Constructor Overloading)
     Book(string title, string author) : title(title), author(author), isBorrowed(false) {
         cout << "Book object created with title: " << title << ", author: " << author << ".\n";
     }
@@ -50,7 +55,7 @@ public:
         }
     }
 
-    // Function to display book details
+    // Virtual function to display book details (Run-Time Polymorphism - Function Overriding)
     virtual void displayDetails() const {
         cout << "Title: " << this->title << ", Author: " << this->author;
         if (this->isBorrowed) {
@@ -72,7 +77,7 @@ public:
         cout << "EBook object created with file size: " << fileSize << "MB\n";
     }
 
-    // Overriding the displayDetails function
+    // Overriding the displayDetails function (Run-Time Polymorphism - Function Overriding)
     void displayDetails() const override {
         cout << "E-Book -> Title: " << title << ", Author: " << author << ", File Size: " << fileSize << "MB";
         if (isBorrowed) {
@@ -94,7 +99,7 @@ public:
         cout << "PrintedBook object created with " << pageCount << " pages.\n";
     }
 
-    // Overriding the displayDetails function
+    // Overriding the displayDetails function (Run-Time Polymorphism - Function Overriding)
     void displayDetails() const override {
         cout << "Printed Book -> Title: " << title << ", Author: " << author << ", Pages: " << pageCount;
         if (isBorrowed) {
